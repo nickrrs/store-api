@@ -2,9 +2,10 @@
 
 namespace App\Domain\Sales\Application\Repositories;
 
+use App\Domain\Sales\Infrastructure\Contracts\SaleRepositoryContract;
 use App\Models\Sale;
 
-class SaleRepository
+class SaleRepository implements SaleRepositoryContract
 {
 
     public function getSale(string $id): Sale
