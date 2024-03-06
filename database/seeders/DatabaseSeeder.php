@@ -3,6 +3,10 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Product;
+use App\Models\Sale;
+use App\Models\SaleProduct;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,11 +16,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        $products = Product::factory(5)->create();
+        $sales = Sale::factory(2)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        foreach ($sales as $sale) {
+            $productsToAssociateCount = rand(1, min(3, $products->count()));
+            
+            $productsToAssociate = $products->random($productsToAssociateCount);
+            
+            foreach ($productsToAssociate as $product) {
+                SaleProduct::factory()->create([
+                    'sale_id' => $sale->id,
+                    'product_id' => $product->id,
+                    'amount' => rand(1, 5)
+                ]);
+            }
+        }
     }
 }
