@@ -20,17 +20,34 @@ class SaleProductObserver
         try {
             $product = $this->productService->getProduct($saleProduct->product_id);
             $sale = $this->saleService->getSale($saleProduct->sale_id);
-    
+
             $sale->update([
                 'amount' => $sale->amount + ($saleProduct->amount * $product->price)
             ]);
         } catch (QueryException $e) {
             Log::error('Error on SaleProduct Observer while trying to associate the amount to the sale [ID: ' . $sale->id . ']', ['error' => $e->getMessage(), 'status' => $e->getCode()]);
-        }        
+        }
     }
 
     public function updated(SaleProduct $saleProduct): void
     {
-        //
+        try {
+            $changes = $saleProduct->getChanges();
+
+            if (isset($changes['amount'])) {
+                $oldAmount = $saleProduct->getOriginal('amount');
+                $newAmount = $changes['amount'];
+                $amountAdded = $newAmount - $oldAmount;
+
+                $product = $this->productService->getProduct($saleProduct->product_id);
+                $sale = $this->saleService->getSale($saleProduct->sale_id);
+
+                $sale->update([
+                    'amount' => $sale->amount + ($amountAdded * $product->price)
+                ]);
+            }
+        } catch (QueryException $e) {
+            Log::error('Error on SaleProduct Observer while trying to associate the amount to the sale [ID: ' . $sale->id . '] on Updating', ['error' => $e->getMessage(), 'status' => $e->getCode()]);
+        }
     }
 }

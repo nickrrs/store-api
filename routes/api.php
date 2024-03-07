@@ -28,5 +28,6 @@ Route::group(['prefix' => 'sales'], function () {
     Route::get('all', [SaleController::class, 'getSales'])->name('sale.all');
     Route::get('/{id}', [SaleController::class, 'getSale'])->name('sale.get');
     Route::post('store', [SaleController::class, 'newSale'])->name('sale.store');
+    Route::post('{id}/add-products', [SaleController::class, 'addProducts'])->name('sale.add');
     Route::patch('/cancel/{id}', [SaleController::class, 'cancelSale'])->name('sale.cancel');
 });

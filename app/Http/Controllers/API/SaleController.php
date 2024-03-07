@@ -68,9 +68,22 @@ class SaleController extends Controller
 
     public function cancelSale(Request $request): JsonResponse
     {
-        try { 
+        try {
             $sale = $this->saleService->cancel($request->id);
-            
+
+            $outputDTO = ListSaleOutputDTO::fromArray($sale->toArray());
+
+            return response()->json($outputDTO->response());
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    public function addProducts(NewSaleRequest $formRequest): JsonResponse
+    {
+        try {
+            $sale = $this->saleService->addProduct($formRequest->validated(), request('id'));
+
             $outputDTO = ListSaleOutputDTO::fromArray($sale->toArray());
 
             return response()->json($outputDTO->response());

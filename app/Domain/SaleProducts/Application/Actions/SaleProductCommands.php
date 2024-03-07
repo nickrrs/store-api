@@ -11,8 +11,18 @@ class SaleProductCommands
     {
     }
 
+    public function getSaleProductByProduct(string $productId): SaleProduct
+    {
+        return $this->saleProductRepository->getSaleProduct($productId);   
+    }
+
     public function newSaleProduct(array $payload): SaleProduct
     {
         return $this->saleProductRepository->store($payload);
+    }
+
+    public function updateSaleProduct(SaleProduct $saleProduct, array $payload): SaleProduct
+    {
+        return $this->saleProductRepository->update($saleProduct, $payload);
     }
 }

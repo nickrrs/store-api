@@ -65,11 +65,46 @@ class SaleService implements SaleServiceContract
     public function cancel(string $id): Sale
     {
         $sale = $this->getSale($id);
-        
-        if($sale->status == SaleStatusesEnum::Cancelled->value){
+
+        if ($sale->status == SaleStatusesEnum::Cancelled->value) {
             throw new SaleAlreadyCancelledException('This sale is already cancelled');
         }
 
         return $this->salesCommandActions->cancel($sale);
+    }
+
+    public function addProduct(array $payload, string $id): Sale
+    {
+        $sale = $this->getSale($id);
+
+        if ($sale->status == SaleStatusesEnum::Cancelled->value) {
+            throw new SaleAlreadyCancelledException('This sale is already cancelled, you cant add new products to a canceled sale');
+        }
+
+        DB::transaction(function () use ($sale, $payload) {
+            $existingProducts = [];
+            foreach ($sale->toArray()['products'] as $product) {
+                $existingProducts[$product['id']] = $product;
+            }
+
+            foreach ($payload['products'] as $saleProduct) {
+                if (array_key_exists($saleProduct['product_id'], $existingProducts)) {
+                    $retrievedSaleProduct = $this->saleProductService->getSaleProductByProduct($saleProduct['product_id']);
+
+                    $this->saleProductService->updateSaleProduct($retrievedSaleProduct, [
+                        'amount' => $retrievedSaleProduct->amount + $saleProduct['amount']
+                    ]);
+                } else {
+                    $this->saleProductService->newSaleProduct([
+                        'id' => Uuid::uuid4()->toString(),
+                        'amount' => $saleProduct['amount'],
+                        'sale_id' => $sale->id,
+                        'product_id' => $saleProduct['product_id']
+                    ]);
+                }
+            }
+        });
+
+        return $sale->refresh();
     }
 }
