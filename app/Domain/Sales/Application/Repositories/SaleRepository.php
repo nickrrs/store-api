@@ -12,4 +12,9 @@ class SaleRepository implements SaleRepositoryContract
     {
         return Sale::findOrFail($id);
     }
+
+    public function store(array $paylaod): Sale
+    {
+        return Sale::create($paylaod);
+    }
 }

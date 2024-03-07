@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\SalesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,4 +22,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['prefix' => 'products'], function () {
     Route::get('all', [ProductController::class, 'getProducts'])->name('product.all');
+});
+
+Route::group(['prefix' => 'sales'], function () {
+    Route::post('store', [SalesController::class, 'newSale'])->name('sale.store');
 });
