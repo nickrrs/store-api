@@ -24,7 +24,7 @@ class ProductControllerTest extends TestCase
     {
         $request = $this->get(route('product.all'));
 
-        $request->assertStatus(404);
+        $request->assertStatus(422);
         $request->assertJson([
             'No product was found in the database, please try again later.'
         ]);

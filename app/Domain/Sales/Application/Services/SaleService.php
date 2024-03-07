@@ -11,6 +11,7 @@ use App\Domain\Sales\Infrastructure\Contracts\SaleServiceContract;
 use App\Domain\Sales\Infrastructure\Enums\SaleStatusesEnum;
 use App\Domain\Sales\Infrastructure\Exceptions\InsuficientProductsException;
 use App\Models\Sale;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 
@@ -24,6 +25,11 @@ class SaleService implements SaleServiceContract
     ) {
     }
 
+    public function getSales(): Collection
+    {
+        return $this->salesQueryAction->getSales();
+    }
+
     public function getSale(string $id): Sale
     {
         return $this->salesQueryAction->getSale($id);
@@ -31,8 +37,8 @@ class SaleService implements SaleServiceContract
 
     public function newSale(array $payload): Sale
     {
-        
-        if(!count($payload['products']) > 0){
+
+        if (!count($payload['products']) > 0) {
             throw new InsuficientProductsException('Your sale should have at least one product');
         }
 
@@ -47,7 +53,7 @@ class SaleService implements SaleServiceContract
 
             foreach ($payload['products'] as $saleProductPayload) {
 
-                if(!$this->productService->getProduct($saleProductPayload['product_id'])){
+                if (!$this->productService->getProduct($saleProductPayload['product_id'])) {
                     throw new ProductNotFoundException('The product of ID ' . $saleProductPayload['product_id'] . 'does not exists');
                 }
 

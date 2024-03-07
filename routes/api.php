@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\ProductController;
-use App\Http\Controllers\API\SalesController;
+use App\Http\Controllers\API\SaleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,5 +25,6 @@ Route::group(['prefix' => 'products'], function () {
 });
 
 Route::group(['prefix' => 'sales'], function () {
-    Route::post('store', [SalesController::class, 'newSale'])->name('sale.store');
+    Route::get('all', [SaleController::class, 'getSales'])->name('sale.all');
+    Route::post('store', [SaleController::class, 'newSale'])->name('sale.store');
 });

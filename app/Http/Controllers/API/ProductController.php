@@ -25,7 +25,7 @@ class ProductController extends Controller
             if($products->count() == 0) {
                 return response()->json([
                     'No product was found in the database, please try again later.'
-                ], 404);
+                ], 422);
             }
 
             return response()->json($products);

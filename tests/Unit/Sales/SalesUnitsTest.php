@@ -45,7 +45,7 @@ class SalesUnitsTest extends TestCase
     public function test_new_sale(): void
     {
         $product = Product::factory()->create();
-        
+
         $newSalePayload = [
             'products' => [[
                 'product_id' => $product->id,
@@ -62,6 +62,24 @@ class SalesUnitsTest extends TestCase
             'sale_id' => $sale->id,
             'product_id' => $product->id
         ]);
+    }
+
+    public function test_list_sales(): void
+    {
+        $product = Product::factory()->create();
+
+        $newSalePayload = [
+            'products' => [[
+                'product_id' => $product->id,
+                'amount' => 2
+            ]],
+        ];
+
+        $this->saleService->newSale($newSalePayload);
+
+        $sales = $this->saleService->getSales();
+
+        $this->assertGreaterThan(0, $sales->count());
     }
 
     private function initializeRepositories(): void

@@ -16,8 +16,9 @@ class Sale extends Model
 
     protected $fillable = ['id', 'amount', 'status'];
 
-    public function salesProducts()
+    public function products()
     {
-        return $this->hasMany(SaleProduct::class, 'sales_id', 'sales_id');
+        return $this->belongsToMany(Product::class, 'sale_products', 'sale_id', 'product_id')
+                    ->withPivot('amount');
     }
 }

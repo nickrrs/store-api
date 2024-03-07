@@ -18,6 +18,6 @@ class Product extends Model
 
     public function sales()
     {
-        return $this->belongsToMany(Sale::class, 'sale_products', 'product_id', 'sales_id')->withPivot('amount')->withTimestamps();
+        return $this->belongsToMany(Sale::class, 'sale_products', 'product_id', 'sale_id');
     }
 }
