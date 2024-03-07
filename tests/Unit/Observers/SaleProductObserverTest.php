@@ -2,17 +2,10 @@
 
 namespace Tests\Unit;
 
-use App\Domain\Products\Application\Services\ProductService;
-use App\Domain\Sales\Application\Services\SaleService;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleProduct;
-use App\Observers\SaleProductObserver;
-use Exception;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
-use Mockery;
 use Tests\TestCase;
 
 class SaleProductObserverTest extends TestCase
