@@ -16,7 +16,7 @@ class SaleRepository implements SaleRepositoryContract
 
     public function getSale(string $id): Sale
     {
-        return Sale::findOrFail($id);
+        return Sale::with('products')->findOrFail($id);
     }
 
     public function store(array $paylaod): Sale

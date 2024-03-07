@@ -104,4 +104,31 @@ class SaleControllerTest extends TestCase
             'No sale was found in the database, please try again later.'
         ]);
     }
+
+    public function test_retrieve_a_sale(): void
+    {
+        $product = Product::factory()->create();
+
+        $payload = [
+            'products' => [[
+                'product_id' => $product->id,
+                'amount' => 2
+            ]]
+        ];
+
+        $newSaleRequest =$this->post(route('sale.store'), $payload)->assertStatus(200);
+        $saleData = $newSaleRequest->json();
+
+        $getRequest = $this->get(route('sale.get', ['id' => $saleData['data']['id']]))->assertStatus(200);
+        $data = $getRequest->json();
+
+        $this->assertIsArray($data['data']);
+        
+        $foundProducts = false;
+        if (array_key_exists('products', $data['data'])) {
+            $foundProducts = true;
+        }
+
+        $this->assertTrue($foundProducts);
+    }
 }

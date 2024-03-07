@@ -82,6 +82,24 @@ class SalesUnitsTest extends TestCase
         $this->assertGreaterThan(0, $sales->count());
     }
 
+    public function test_list_a_sale(): void
+    {
+        $product = Product::factory()->create();
+
+        $newSalePayload = [
+            'products' => [[
+                'product_id' => $product->id,
+                'amount' => 2
+            ]],
+        ];
+
+        $sale = $this->saleService->newSale($newSalePayload);
+
+        $retrievedSale = $this->saleService->getSale($sale->id);
+
+        $this->assertGreaterThan(0, $retrievedSale->count());
+    }
+
     private function initializeRepositories(): void
     {
         $this->saleRepository = new SaleRepository();
