@@ -1,66 +1,81 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Documentação de Projeto
+O projeto consiste em uma aplicação RESTFul em Laravel, rodando em uma ambiente de containers em Docker, e utiliza o banco de dados relacional para armazenamento de informações. A arquitetura da aplicação foi baseada em DDD (Domain-Driven-Design) mas de forma customizada pessoal.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Documentação/Collection das Endpoints: **/docs/collection/** dentro do projeto. 
 
-## About Laravel
+### Para configurar e executar o projeto é só seguir os simples passos:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Antes de iniciar, é importante que você crie um arquivo **.env** caso não o tenha. No arquivo **.env.example** há um modelo do arquivo que possa ser criado, com variáveis e valores ideais para o seu ambiente.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1 - Ao clonar o projeto, na raiz, execute o seguinte comando para monstar as imagens de container e executá-los em segundo plano: 
+    
+```docker
+docker-compose up -d --build 
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**OBS: caso o script de "change owner" do Dockerfile não funcione corretamente, pode tentar executar o seguinte comando no terminal:** 
+```docker  
+docker-compose exec app chmod -R 777 /var/www/storage 
+```
 
-## Learning Laravel
+Rodar esse comando, dá a permissão geral para qualquer usuário dentro da pasta storage, algo importante, já que nessa aplicação usamos algumas escritas em Log. Entretanto, essa permissão em específico não é recomendável de se utilizar fora de ambientes de desenvolvimento/teste.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2 - Uma vez que o seu ambiente docker estiver buildado e rodando certinho, acessa o bash, utilizando o comando: 
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+> ```docker exec -it store_api_app bash``` (ou, no lugar do "store_api_app", o nome do container da sua aplicação definido do docker-compose)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## Laravel Sponsors
+3 - Uma vez dentro do console do bash, exexcute o seguinte comando para instalar as dependências do projeto: 
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+> ```composer install```
 
-### Premium Partners
+4 - Uma vez que as depedências do projeto estiverem instaladas, e .env configurado, execute o seguinte comando no terminal para rodar as migrations e popular o banco de dados: 
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+>```php artisan migrate```
 
-## Contributing
+Execute também o seguinte comando, se preciso:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+> ```php artisan key:generate```
 
-## Code of Conduct
+5 - Prontinho, seu ambiente de desenvolvimento está configurado, caso queira parar a execução dos containers, execute o seguinte comando:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```docker-compose stop```
 
-## Security Vulnerabilities
+### Como funciona a API ?
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+A API consiste em um ambiente simples para simulação de vendas, onde podemos adicionar produtos a uma venda que será processada e concluída posteriormente.
 
-## License
+Para fins de testes da aplicação, se for do seu interesse, pode rodar o seguinte comando para executar todos os testes já montados para o sistema, lembre-se de executar o comando estando no console bash do docker: 
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+> ```php artisan test```
+
+Mas caso queira testar o fluxo da funcionalidade de uma forma manual, primeiro popule o banco de dados, utilizando o seguinte comando:
+
+>```php artisan db:seed```
+
+Uma vez com o banco populado, pode pegar dados de exemplo para utilizar nas endpoints do sistema.
+
+## Roadmap e Possíveis Melhorias
+- [ ] Melhoria de arquitetura de Domain para agregar melhor os recursos das aplicações por entidades.
+    * Exemplos: 
+        - Agregar a camada de Models aos Domains da aplicação.
+        - Adição de UseCases para a camada de Application do Domain.
+        - Melhor abstração de DTO's para a camada de Application do Domain para retorno de consultas / especificar campos e retirar campos sensíveis, como ID do Sale, Product, valores de vendas, etc.
+        - Desacoplar a camada HTTP do MVC padrão do Laravel para uma camada de "Presentation" no Domain
+            - E nesta camada, poderíamos dividir da seguinte forma:
+                * API: Sub-camada para a lidar com requisições externas à nossa API
+                * CLI: Sub-camada para gerenciamento de comandos
+                * HTTP: Sub-camada para desaclopar a camada de Controllers e Routes.
+
+- [ ] Implementar fluxo de Autenticação e Autorização, para segurança, gerenciamento de sessão e controle das rotas. Isso inclui também verificar e validar permissões de acesso para diferentes recursos da API.
+
+- [ ] Injeção automatica de dependências das classes utilizando o AppServiceProvider,
+bindando as classes utilizadas.
+
+- [ ] Implementar jobs em filas, queueable para o Listeners, para enviar e-mails de confirmaçao de compra/venda dos produtos.
+
+- [ ] Implementação através de um servidor remoto para realizar implementação de um Cron, ou talvez um serviço em Lambda, para envio dos Jobs/Listeners em fila, para os e-mails citado anteriormente.
+
+- [ ] Implementação de um gateway de pagamento e confirmação de compras através de webhooks.
+
+- [ ] Para a rota de listagem, retornar apenas as vendas que tiveram pagamentos concluídos e status alterados para "completed". 
