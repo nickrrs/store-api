@@ -12,7 +12,7 @@ class SaleProductService implements SaleProductServiceContract
     {
     }
 
-    public function getSaleProductByProduct(string $productId)
+    public function getSaleProductByProduct(string $productId): SaleProduct
     {
         return $this->saleProductCommands->getSaleProductByProduct($productId);
     }
