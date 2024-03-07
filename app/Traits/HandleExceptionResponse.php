@@ -21,7 +21,7 @@ trait HandleExceptionResponse
 
         if($exception instanceof ProductNotFoundException) {
             $message = $exception->getMessage() ?? 'A product not found error has ocurred';
-            $code = 404;
+            $code = 422;
         }
 
         if($exception instanceof InsuficientProductsException) {
