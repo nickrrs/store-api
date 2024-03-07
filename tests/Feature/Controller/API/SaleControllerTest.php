@@ -6,6 +6,8 @@ use App\Domain\Products\Infrastructure\Exceptions\ProductNotFoundException;
 use App\Domain\Sales\Application\Services\SaleService;
 use App\Domain\Sales\Infrastructure\Enums\SaleStatusesEnum;
 use App\Models\Product;
+use App\Models\Sale;
+use App\Models\SaleProduct;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -169,5 +171,96 @@ class SaleControllerTest extends TestCase
 
         $this->patch(route('sale.cancel', ['id' => $saleData['data']['id']]))->assertStatus(200);
         $this->patch(route('sale.cancel', ['id' => $saleData['data']['id']]))->assertStatus(422);
+    }
+
+    public function test_add_a_new_product_to_an_existing_sale(): void
+    {
+        $productOne = Product::factory()->create();
+        $productTwo = Product::factory()->create();
+
+        $payload = [
+            'products' => [[
+                'product_id' => $productOne->id,
+                'amount' => 2
+            ]]
+        ];
+
+        $saleRequest = $this->post(route('sale.store'), $payload)->assertStatus(200);
+        $saleData = $saleRequest->json();
+
+        $addProductPayload = [
+            'products' => [[
+                'product_id' => $productTwo->id,
+                'amount' => 1
+            ]]
+        ];
+
+        $this->post(route('sale.add', ['id' => $saleData['data']['id']]), $addProductPayload)->assertStatus(200);
+
+        $this->assertDatabaseHas('sale_products', [
+            'sale_id' => $saleData['data']['id'],
+            'product_id' => $productTwo->id,
+            'amount' => 1
+        ]);
+    }
+
+    public function test_add_the_same_product_to_an_existing_sale(): void
+    {
+        $productOne = Product::factory()->create();
+
+        $payload = [
+            'products' => [[
+                'product_id' => $productOne->id,
+                'amount' => 2
+            ]]
+        ];
+
+        $saleRequest = $this->post(route('sale.store'), $payload)->assertStatus(200);
+        $saleData = $saleRequest->json();
+
+        $addProductPayload = [
+            'products' => [[
+                'product_id' => $productOne->id,
+                'amount' => 1
+            ]]
+        ];
+
+        $this->post(route('sale.add', ['id' => $saleData['data']['id']]), $addProductPayload)->assertStatus(200);
+
+        $this->assertDatabaseHas('sale_products', [
+            'sale_id' => $saleData['data']['id'],
+            'product_id' => $productOne->id,
+            'amount' => 3
+        ]);
+
+        $this->assertDatabaseHas('sales', [
+            'id' => $saleData['data']['id'],
+            'amount' => $productOne->price * 3
+        ]);
+    }
+
+    public function test_add_a_product_to_an_cancelled_sale(): void
+    {
+        $productOne = Product::factory()->create();
+        $productTwo = Product::factory()->create();
+
+        $sale = Sale::factory()->create([
+            'status' => 'cancelled'
+        ]);
+
+        SaleProduct::factory()->create([
+            'sale_id' => $sale->id,
+            'product_id' => $productOne->id,
+            'amount' => 1
+        ]); 
+
+        $addProductPayload = [
+            'products' => [[
+                'product_id' => $productTwo->id,
+                'amount' => 1
+            ]]
+        ];
+
+        $this->post(route('sale.add', ['id' => $sale->id]), $addProductPayload)->assertStatus(422);
     }
 }
