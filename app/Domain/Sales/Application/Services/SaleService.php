@@ -77,8 +77,8 @@ class SaleService implements SaleServiceContract
     {
         $sale = $this->getSale($id);
 
-        if ($sale->status == SaleStatusesEnum::Cancelled->value) {
-            throw new SaleAlreadyCancelledException('This sale is already cancelled, you cant add new products to a canceled sale');
+        if ($sale->status == SaleStatusesEnum::Cancelled->value || $sale->status == SaleStatusesEnum::Completed->value) {
+            throw new SaleAlreadyCancelledException('You cant add new products to this sale');
         }
 
         DB::transaction(function () use ($sale, $payload) {
