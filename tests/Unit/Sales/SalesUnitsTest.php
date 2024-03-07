@@ -12,6 +12,7 @@ use App\Domain\Sales\Application\Actions\SalesCommandActions;
 use App\Domain\Sales\Application\Actions\SalesQueryActions;
 use App\Domain\Sales\Application\Repositories\SaleRepository;
 use App\Domain\Sales\Application\Services\SaleService;
+use App\Domain\Sales\Infrastructure\Enums\SaleStatusesEnum;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -98,6 +99,26 @@ class SalesUnitsTest extends TestCase
         $retrievedSale = $this->saleService->getSale($sale->id);
 
         $this->assertGreaterThan(0, $retrievedSale->count());
+    }
+
+    public function test_cancel_a_sale(): void
+    {
+        $product = Product::factory()->create();
+
+        $newSalePayload = [
+            'products' => [[
+                'product_id' => $product->id,
+                'amount' => 2
+            ]],
+        ];
+
+        $sale = $this->saleService->newSale($newSalePayload);
+        $this->saleService->cancel($sale->id);
+
+        $this->assertDatabaseHas('sales', [
+            'id' => $sale->id,
+            'status' => SaleStatusesEnum::Cancelled->value
+        ]);
     }
 
     private function initializeRepositories(): void

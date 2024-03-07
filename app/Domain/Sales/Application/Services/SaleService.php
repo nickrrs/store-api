@@ -9,7 +9,7 @@ use App\Domain\Sales\Application\Actions\SalesCommandActions;
 use App\Domain\Sales\Application\Actions\SalesQueryActions;
 use App\Domain\Sales\Infrastructure\Contracts\SaleServiceContract;
 use App\Domain\Sales\Infrastructure\Enums\SaleStatusesEnum;
-use App\Domain\Sales\Infrastructure\Exceptions\InsuficientProductsException;
+use App\Domain\Sales\Infrastructure\Exceptions\SaleAlreadyCancelledException;
 use App\Models\Sale;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -37,11 +37,6 @@ class SaleService implements SaleServiceContract
 
     public function newSale(array $payload): Sale
     {
-
-        if (!count($payload['products']) > 0) {
-            throw new InsuficientProductsException('Your sale should have at least one product');
-        }
-
         $salePayload = [
             'id' => Uuid::uuid4()->toString(),
             'amount' => 0,
@@ -65,5 +60,16 @@ class SaleService implements SaleServiceContract
 
             return $sale;
         });
+    }
+
+    public function cancel(string $id): Sale
+    {
+        $sale = $this->getSale($id);
+        
+        if($sale->status == SaleStatusesEnum::Cancelled->value){
+            throw new SaleAlreadyCancelledException('This sale is already cancelled');
+        }
+
+        return $this->salesCommandActions->cancel($sale);
     }
 }

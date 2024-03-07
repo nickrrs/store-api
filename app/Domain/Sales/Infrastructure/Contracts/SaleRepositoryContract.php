@@ -10,4 +10,5 @@ interface SaleRepositoryContract
     public function all(): Collection;
     public function getSale(string $id): Sale;   
     public function store(array $paylaod): Sale;
+    public function cancel(Sale $sale): Sale;
 }

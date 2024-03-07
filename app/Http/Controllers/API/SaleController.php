@@ -44,7 +44,7 @@ class SaleController extends Controller
     {
         try {
             $sale = $this->saleService->getSale($request->id);
-            
+
             $outputDTO = ListSaleOutputDTO::fromArray($sale->toArray());
 
             return response()->json($outputDTO->response());
@@ -59,6 +59,19 @@ class SaleController extends Controller
             $sale = $this->saleService->newSale($request->validated());
 
             $outputDTO = NewSaleOutputDTO::fromArray($sale->toArray());
+
+            return response()->json($outputDTO->response());
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    public function cancelSale(Request $request): JsonResponse
+    {
+        try { 
+            $sale = $this->saleService->cancel($request->id);
+            
+            $outputDTO = ListSaleOutputDTO::fromArray($sale->toArray());
 
             return response()->json($outputDTO->response());
         } catch (Exception $e) {

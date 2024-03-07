@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Domain\Products\Infrastructure\Exceptions\ProductNotFoundException;
 use App\Domain\Sales\Infrastructure\Exceptions\InsuficientProductsException;
+use App\Domain\Sales\Infrastructure\Exceptions\SaleAlreadyCancelledException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -26,6 +27,11 @@ trait HandleExceptionResponse
 
         if($exception instanceof InsuficientProductsException) {
             $message = $exception->getMessage() ?? 'Insuficient quantity of products in the operation';
+            $code = 422;
+        }
+
+        if($exception instanceof SaleAlreadyCancelledException) {
+            $message = $exception->getMessage() ?? 'This sale is already cancelled';
             $code = 422;
         }
 

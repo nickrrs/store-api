@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Domain\Products\Infrastructure\Exceptions\ProductNotFoundException;
 use App\Domain\Sales\Application\Services\SaleService;
+use App\Domain\Sales\Infrastructure\Enums\SaleStatusesEnum;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class SaleControllerTest extends TestCase
@@ -83,7 +83,7 @@ class SaleControllerTest extends TestCase
         $data = $request->json();
 
         $this->assertIsArray($data['data']);
-        
+
         $foundProducts = false;
         foreach ($data['data'] as $item) {
             if (array_key_exists('products', $item)) {
@@ -116,19 +116,58 @@ class SaleControllerTest extends TestCase
             ]]
         ];
 
-        $newSaleRequest =$this->post(route('sale.store'), $payload)->assertStatus(200);
+        $newSaleRequest = $this->post(route('sale.store'), $payload)->assertStatus(200);
         $saleData = $newSaleRequest->json();
 
         $getRequest = $this->get(route('sale.get', ['id' => $saleData['data']['id']]))->assertStatus(200);
         $data = $getRequest->json();
 
         $this->assertIsArray($data['data']);
-        
+
         $foundProducts = false;
         if (array_key_exists('products', $data['data'])) {
             $foundProducts = true;
         }
 
         $this->assertTrue($foundProducts);
+    }
+
+    public function test_cancel_a_sale_route(): void
+    {
+        $product = Product::factory()->create();
+
+        $payload = [
+            'products' => [[
+                'product_id' => $product->id,
+                'amount' => 2
+            ]]
+        ];
+
+        $newSaleRequest = $this->post(route('sale.store'), $payload)->assertStatus(200);
+        $saleData = $newSaleRequest->json();
+
+        $this->patch(route('sale.cancel', ['id' => $saleData['data']['id']]))->assertStatus(200);
+        $this->assertDatabaseHas('sales', [
+            'id' => $saleData['data']['id'],
+            'status' => SaleStatusesEnum::Cancelled->value
+        ]);
+    }
+
+    public function test_exception_when_trying_to_cancel_a_already_cancelled_sale(): void
+    {
+        $product = Product::factory()->create();
+
+        $payload = [
+            'products' => [[
+                'product_id' => $product->id,
+                'amount' => 2
+            ]]
+        ];
+
+        $newSaleRequest = $this->post(route('sale.store'), $payload)->assertStatus(200);
+        $saleData = $newSaleRequest->json();
+
+        $this->patch(route('sale.cancel', ['id' => $saleData['data']['id']]))->assertStatus(200);
+        $this->patch(route('sale.cancel', ['id' => $saleData['data']['id']]))->assertStatus(422);
     }
 }
